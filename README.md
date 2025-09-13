@@ -1,78 +1,111 @@
+# 📘 Excel Column Consistency Checker
 
-# 📘 Python Script Requirements: Excel Column Consistency Checker
-
-## 1. Input
-
-* Process multiple Excel files stored in Google Drive.
-* For each file, read **all sheets (tables)**.
+This project provides a **Python script** to check **column consistency** across multiple Excel files stored in **Google Drive**.  
+It automatically validates column values against predefined **patterns** and generates a detailed **Excel report**.
 
 ---
 
-## 2. Pattern Detection Rules
+## 🚀 Features
 
-For each column, the **first non-empty record** defines its pattern
-(❗except for Address, Request Number, and Note, which have explicit rules).
-
-### Allowed Patterns
-
-| Pattern            | Rule                                                                                                                                                                                                                         | Notes                                                                 |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| **Arabic words**   | Allowed chars: Arabic letters `[\u0600-\u06FF]` + symbols `() _ - \\ / .`                                                                                                                                                    | First non-empty record defines pattern                                |
-| **English words**  | Allowed chars: `A–Z`, `a–z`, spaces, `_`, `-`, `.`                                                                                                                                                                           | First non-empty record defines pattern                                |
-| **Numbers**        | Digits only `[0-9]+`                                                                                                                                                                                                         | First non-empty record defines pattern; special length check (see §3) |
-| **Dates**          | Recognizable formats (e.g., `YYYY-MM-DD`, `DD/MM/YYYY`, etc.)                                                                                                                                                                | First non-empty record defines pattern                                |
-| **Address**        | Applied if column name contains `"address"` (case-insensitive). Allowed chars: Arabic, English, digits, spaces, `, . - / #`. **Must contain at least one letter** (Arabic or English). Numbers-only values are inconsistent. | Independent of first record                                           |
-| **Request Number** | Applied if column name = `"REQ_NO"` or `"REQUEST_NO"` (case-insensitive). Consistent only if value is a **number > 0**.                                                                                                      | Independent of first record                                           |
-| **Note**           | Applied if column name contains `"note"`, `"desc"`, or `"desca"` (case-insensitive). Any value is accepted.                                                                                                                  | Independent of first record                                           |
-
----
-
-## 3. Length Consistency
-
-* Applies **only to Numbers**.
-* Compute average length of all non-empty numeric values.
-* Allowed range = `average ± 25%`.
-* **Exception:** If average length `< 2`, **skip length check** (i.e., all valid numbers are accepted regardless of length).
+- Process **multiple Excel files** from Google Drive.
+- Read **all sheets** in each file.
+- Automatically **detect column patterns** (Arabic, English, Numbers, Dates).
+- Special handling for:
+  - **Address** columns
+  - **Request Number** columns
+  - **Note/Description** columns
+- **Length consistency** check for numeric fields.
+- Ignore **null/empty** values.
+- Generate a **single Excel report** summarizing:
+  - File name
+  - Sheet name
+  - Column name
+  - Detected pattern
+  - Numeric average length & allowed range
+  - Consistency percentage
+  - Count of consistent & inconsistent values
+  - List of inconsistent values
 
 ---
 
-## 4. Null Values
+## 📥 Input
 
-* Ignore null/empty values.
-* If entire column = null → skip column.
+- Multiple **Excel files** stored in Google Drive.
+- Each file may contain **multiple sheets**.
 
 ---
 
-## 5. Consistency Rules
+## 📏 Pattern Detection Rules
+
+The **first non-empty record** in each column defines its pattern  
+(❗except for `Address`, `Request Number`, and `Note`, which have explicit rules).
+
+| Pattern            | Rule                                                                 | Notes                                                                 |
+| ------------------ | -------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| **Arabic words**   | `[\u0600-\u06FF]` + symbols `() _ - \ / .`                          | First non-empty record defines pattern                                |
+| **English words**  | `A–Z`, `a–z`, spaces, `_ - .`                                       | First non-empty record defines pattern                                |
+| **Numbers**        | `[0-9]+`                                                            | First non-empty record defines pattern; length check (see below)      |
+| **Dates**          | Recognizable formats (`YYYY-MM-DD`, `DD/MM/YYYY`, etc.)             | First non-empty record defines pattern                                |
+| **Address**        | Column name contains `"address"` → Arabic/English/digits + symbols. Must contain at least one letter. Numbers-only values are inconsistent. | Independent of first record |
+| **Request Number** | Column name = `"REQ_NO"` or `"REQUEST_NO"` → Must be **number > 0** | Independent of first record                                           |
+| **Note**           | Column name contains `"note"`, `"desc"`, `"desca"` → Any value OK   | Independent of first record                                           |
+
+---
+
+## 🔢 Length Consistency (Numbers Only)
+
+- Compute **average length** of all non-empty numeric values.
+- Allowed range = `average ± 25%`.
+- **Exception:** If average length `< 2`, skip length check.
+
+---
+
+## ⚖️ Consistency Rules
 
 A record is **consistent** if:
 
-* It matches the column’s detected/assigned pattern.
-* If numeric → its length is within `average ± 25%` (unless average length < 2, then skip).
-* If Request Number → it is numeric and > 0.
-* If Address → it has allowed characters and **at least one letter**.
-* If Note → any non-null value is consistent.
+- It matches the column’s detected/assigned pattern.
+- If numeric → its length is within `average ± 25%` (unless average length < 2).
+- If Request Number → numeric and > 0.
+- If Address → contains valid chars **and at least one letter**.
+- If Note → any non-null value is valid.
 
-Otherwise → inconsistent.
-
----
-
-## 6. Report Output
-
-For each column, report should include:
-
-* File name
-* Sheet/Table name
-* Column name
-* Detected pattern
-* Average length and allowed range (if numeric; optional for others)
-* Consistency percentage (`consistent ÷ total non-empty × 100`)
-* Count of consistent and inconsistent values
-* List of all inconsistent values
+Otherwise → **inconsistent**.
 
 ---
 
-## 7. File Format
+## 📊 Output Report
 
-* Save as a single Excel file (`.xlsx`) summarizing all processed files.
-* Store in Google Drive. --> write this as read me file for github 
+The generated **Excel report** includes:
+
+- File name
+- Sheet/Table name
+- Column name
+- Detected pattern
+- Average length and allowed range (for numbers)
+- Consistency percentage
+- Count of consistent and inconsistent values
+- List of inconsistent values
+
+---
+
+## 💾 Output File Format
+
+- Single **Excel file** (`.xlsx`) summarizing all processed files.
+- Stored in **Google Drive**.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Python**
+- **pandas** (Excel handling & analysis)
+- **openpyxl** (Excel writing)
+- **re** (pattern matching)
+- **Google Drive API / PyDrive** (file access)
+- colab
+
+---
+
+## 📂 Project Structure
+
