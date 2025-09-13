@@ -106,6 +106,22 @@ The generated **Excel report** includes:
 - colab
 
 ---
+## ▶️ Usage in Google Colab
 
-## 📂 Project Structure
+1. Open a new cell code in **Google Colab**:  
+  copy and paste the code
+
+2. Mount your Google Drive:  
+  
+   from google.colab import drive
+   drive.mount('/content/drive')
+
+ 3. Locate the files you want to analy
+    in your drive(your_location var)
+
+ 4. run the code
+   The report will be saved to /content/drive/MyDrive/cleaned_consistency_report.xlsx
+    
+
+
 
